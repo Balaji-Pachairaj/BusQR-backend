@@ -1,0 +1,9 @@
+MONGODB DETAILS 
+
+username : "balajipachairaj"
+
+password : "hUNLUJvcqA3mhmeS"
+
+
+
+mongodb : mongodb+srv://balajipachairaj:hUNLUJvcqA3mhmeS@cluster0.cgdns.mongodb.net/
