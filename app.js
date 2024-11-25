@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
 const busStop = require("./routes/bus_stop");
+const routes = require("./routes/routes");
 
 const app = express();
 const cors = require("cors");
@@ -27,13 +28,15 @@ app.use(bodyParser.json());
 app.use(cors(corsOptions));
 
 app.use("/busstop", busStop);
+app.use("/route", routes);
 
 app.use((req, res, next) => {
   res.write("Hello world");
   res.end();
 });
 
-let port = process.env.PORT;
+// let port = process.env.PORT;
+let port = 5000;
 
 app.listen(port, () => {
   console.log("Server has started on port 3000");
