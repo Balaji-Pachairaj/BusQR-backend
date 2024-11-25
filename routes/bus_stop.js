@@ -2,8 +2,13 @@ const express = require("express");
 
 const router = express.Router();
 
-router.get("/:id", (req, res, next) => {
-  res.status(200)?.json(req.params?.id);
-});
+const {
+  post_add_bus_stop,
+  post_list,
+} = require("../controllers/bus_stop_controllers");
+
+router.post("/add_bus_stop", post_add_bus_stop);
+
+router.post("/list", post_list);
 
 module.exports = router;

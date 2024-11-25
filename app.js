@@ -27,16 +27,15 @@ db.once("open", () => {
 app.use(bodyParser.json());
 app.use(cors(corsOptions));
 
-app.use("/busstop", busStop);
-app.use("/route", routes);
+app.use("/api/v1/bus_stop", busStop);
+app.use("/api/v1/route", routes);
 
 app.use((req, res, next) => {
-  res.write("Hello world");
-  res.end();
+  res.status(404).json("API is not found");
 });
 
-// let port = process.env.PORT;
-let port = 5000;
+let port = process.env.PORT;
+// let port = 5000;
 
 app.listen(port, () => {
   console.log("Server has started on port 3000");
