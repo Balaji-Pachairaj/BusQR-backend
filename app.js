@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
 const busStop = require("./routes/bus_stop");
+const busStopSearch = require("./routes/bus_stop_search");
 const routes = require("./routes/routes");
 
 const app = express();
@@ -28,6 +29,7 @@ app.use(bodyParser.json());
 app.use(cors(corsOptions));
 
 app.use("/api/v1/bus_stop", busStop);
+app.use("/api/v1/bus_stop_search", busStopSearch);
 app.use("/api/v1/route", routes);
 
 app.use((req, res, next) => {
