@@ -43,8 +43,23 @@ const find_route_with_id = async (req, res, next) => {
   }
 };
 
+const post_list_route = async (req, res, next) => {
+  try {
+    let body = req?.body;
+    let list = await Route.find(body);
+    if (list) {
+      return res.status(200).json(list);
+    } else {
+      return res.status(200).json([]);
+    }
+  } catch (e) {
+    return res.status(400).json(e);
+  }
+};
+
 module.exports = {
   post_add_route: post_add_route,
   find_route_with_id: find_route_with_id,
   post_add_stops_existing_route: post_add_stops_existing_route,
+  post_list_route: post_list_route,
 };
