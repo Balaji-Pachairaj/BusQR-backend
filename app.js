@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const busStop = require("./routes/bus_stop");
 const busStopSearch = require("./routes/bus_stop_search");
 const routes = require("./routes/routes");
+const trip = require("./routes/trip_routes");
+const tripBusStopTime = require("./routes/trip_bus_stop_time_route");
 
 const app = express();
 const cors = require("cors");
@@ -31,13 +33,15 @@ app.use(cors(corsOptions));
 app.use("/api/v1/bus_stop", busStop);
 app.use("/api/v1/bus_stop_search", busStopSearch);
 app.use("/api/v1/route", routes);
+app.use("/api/v1/trip", trip);
+app.use("/api/v1/trip_bus_stop_time", tripBusStopTime);
 
 app.use((req, res, next) => {
   res.status(404).json("API is not found");
 });
 
-let port = process.env.PORT;
-// let port = 5000;
+// let port = process.env.PORT;
+let port = 5000;
 
 app.listen(port, () => {
   console.log("Server has started on port 3000");

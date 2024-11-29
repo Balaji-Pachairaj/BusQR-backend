@@ -1,14 +1,10 @@
 const mongoose = require("mongoose");
 
 let route = new mongoose.Schema({
+  id: { type: String, required: true, unique: true },
   route_number: { type: String, required: true },
-  list_of_stops: [
-    {
-      name: { type: String },
-      city: { type: String },
-      time: { type: Number }, // Time is mentioned by the number of mintues past after 12 : 00 AM
-    },
-  ],
+  from_to: [{ type: mongoose.Schema.Types.ObjectId }],
+  to_from: [{ type: mongoose.Schema.Types.ObjectId }],
 });
 
 const Route = mongoose.model("route", route);
