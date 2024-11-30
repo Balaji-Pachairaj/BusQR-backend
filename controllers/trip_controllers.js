@@ -35,7 +35,7 @@ const post_create_trip = async (req, res, next) => {
 const post_get_trip_list = async (req, res, next) => {
   try {
     let body = req.body;
-    let route = await Route.find(body).populate([
+    let route = await Route.findOne(body).populate([
       {
         path: "from_to",
         model: "Trip",
