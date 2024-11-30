@@ -55,7 +55,23 @@ const post_get_trip_list = async (req, res, next) => {
   }
 };
 
+const post_indiv_trip_list = async (req, res, next) => {
+  try {
+    let body = req.body;    
+    let trip = await Trip.findOne(body).populate([
+      { path: "route_number", model: "route" },
+    ]);
+    if (!trip) {
+      return res.status(400).json("Invaild Trip Id");
+    }
+    return res.status(200).json(trip);
+  } catch (e) {
+    return res.status(400).json(e);
+  }
+};
+
 module.exports = {
   post_create_trip: post_create_trip,
   post_get_trip_list: post_get_trip_list,
+  post_indiv_trip_list: post_indiv_trip_list,
 };
