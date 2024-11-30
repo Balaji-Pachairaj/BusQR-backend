@@ -1,5 +1,4 @@
 const { Trip } = require("../models/tripModel");
-
 const { Route } = require("../models/route_model");
 
 const post_create_trip = async (req, res, next) => {
@@ -33,6 +32,30 @@ const post_create_trip = async (req, res, next) => {
   }
 };
 
+const post_get_trip_list = async (req, res, next) => {
+  try {
+    let body = req.body;
+    let route = await Route.find(body).populate([
+      {
+        path: "from_to",
+        model: "Trip",
+      },
+      {
+        path: "to_from",
+        model: "Trip",
+      },
+    ]);
+
+    if (!route) {
+      return res.status(400).json("Invaild Route Id");
+    }
+    return res.status(200).json(route);
+  } catch (e) {
+    return res.status(400).json(e);
+  }
+};
+
 module.exports = {
   post_create_trip: post_create_trip,
+  post_get_trip_list: post_get_trip_list,
 };
