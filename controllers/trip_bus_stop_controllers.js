@@ -29,6 +29,30 @@ const post_create_trip_bus_stop_time = async (req, res, next) => {
   }
 };
 
+const post_list_trip_bus_stop_time = async (req, res, next) => {
+  try {
+    let body = req.body;
+
+    let trip = await Trip.findOne(body).populate([
+      { path: "route_number", model: "route" },
+      {
+        path: "trip_bus_stop_time_list",
+        model: "TripBusStopTime",
+        populate: { path: "bus_stop", model: "BusStop" },
+      },
+    ]);
+
+    if (!trip) {
+      return res.status(400).json("Invaild Trip ID");
+    }
+
+    return res.status(200).json(trip);
+  } catch (e) {
+    return res.status(400).json(e);
+  }
+};
+
 module.exports = {
   post_create_trip_bus_stop_time: post_create_trip_bus_stop_time,
+  post_list_trip_bus_stop_time: post_list_trip_bus_stop_time,
 };
