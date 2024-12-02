@@ -29,6 +29,47 @@ const post_create_trip_bus_stop_time = async (req, res, next) => {
   }
 };
 
+const post_create_trip_bus_stop_time_with_list = async (req, res, next) => {
+  try {
+    let body = req.body;
+
+    let array = [];
+
+    let trip = await Trip.findById(body?.trip);
+    if (!trip) {
+      return res.status(400).json("Invaild Trip");
+    }
+
+    if (body?.bus_stop?.length !== body?.time) {
+      return res.status(400).json("Invalid Input");
+    }
+
+    for (let i = 0; i < body?.bus_stop?.length; i++) {
+      let bus_stop = await BusStop.findById(body?.bus_stop[i]);
+      if (!bus_stop) {
+        return res.status(400).json("Invaild Bus Stop");
+      }
+
+      let trip_busStop_time = await TripBusStopTime.create({
+        trip: trip._id,
+        time: body?.time[i],
+        bus_stop: bus_stop,
+      });
+
+      array.push(trip_busStop_time);
+
+      bus_stop.list.push(trip_busStop_time._id);
+      trip.trip_bus_stop_time_list.push(trip_busStop_time._id);
+      await bus_stop.save();
+    }
+
+    await trip.save();
+    return res.status(201).json({ trip, array });
+  } catch (e) {
+    return res.status(400).json(e);
+  }
+};
+
 const post_list_trip_bus_stop_time = async (req, res, next) => {
   try {
     let body = req.body;
@@ -55,4 +96,6 @@ const post_list_trip_bus_stop_time = async (req, res, next) => {
 module.exports = {
   post_create_trip_bus_stop_time: post_create_trip_bus_stop_time,
   post_list_trip_bus_stop_time: post_list_trip_bus_stop_time,
+  post_create_trip_bus_stop_time_with_list:
+    post_create_trip_bus_stop_time_with_list,
 };
