@@ -70,22 +70,40 @@ const post_create_trip_bus_stop_time_with_list = async (req, res, next) => {
   }
 };
 
+function sortObjectsByKey(arr, key, ascending = true) {
+  return arr.sort((a, b) => {
+    if (a[key] < b[key]) return ascending ? -1 : 1;
+    if (a[key] > b[key]) return ascending ? 1 : -1;
+    return 0; // a[key] === b[key]
+  });
+}
+
 const post_list_trip_bus_stop_time = async (req, res, next) => {
   try {
     let body = req.body;
 
-    let trip = await Trip.findOne(body).populate([
-      { path: "route_number", model: "route" },
-      {
-        path: "trip_bus_stop_time_list",
-        model: "TripBusStopTime",
-        populate: { path: "bus_stop", model: "BusStop" },
-      },
-    ]);
+    let trip = await Trip.findOne(body)
+      .populate([
+        { path: "route_number", model: "route" },
+        {
+          path: "trip_bus_stop_time_list",
+          model: "TripBusStopTime",
+          populate: { path: "bus_stop", model: "BusStop" },
+        },
+      ])
+      .lean();
 
     if (!trip) {
       return res.status(400).json("Invaild Trip ID");
     }
+
+    trip = {
+      ...trip,
+      trip_bus_stop_time_list: sortObjectsByKey(
+        trip.trip_bus_stop_time_list,
+        "time"
+      ),
+    };
 
     return res.status(200).json(trip);
   } catch (e) {
