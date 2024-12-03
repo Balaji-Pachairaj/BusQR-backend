@@ -40,7 +40,7 @@ const post_create_trip_bus_stop_time_with_list = async (req, res, next) => {
       return res.status(400).json("Invaild Trip");
     }
 
-    if (body?.bus_stop?.length !== body?.time) {
+    if (body?.bus_stop?.length !== body?.time?.length) {
       return res.status(400).json("Invalid Input");
     }
 
