@@ -109,8 +109,147 @@ const post_get_bus_stop_time_and_route = async (req, res, next) => {
 
 const put_edit_bus_stop = async (req, res, next) => {};
 
+const post_connect_two_bus_stop = async (req, res, next) => {
+  try {
+    let body = req.body;
+    let from = body.from;
+    let to = body.to;
+
+    // Validation
+    let from_bus_stop = await BusStop.findOne(from);
+    let to_bus_stop = await BusStop.findOne(to);
+
+    if (!from_bus_stop || !to_bus_stop) {
+      return res.status(404).json("Bus stop not found");
+    }
+
+    // Step 1 : Scan the Trip bus stop time model with From bus stop Id and get the Array → Called from_bus_stop_time_list
+
+    let from_bus_stop_time_list = await TripBusStopTime.find({
+      bus_stop: from_bus_stop._id,
+    });
+    // .populate({
+    //   path: "trip",
+    //   model: "Trip",
+    //   populate: {
+    //     path: "route_number",
+    //     model: "route",
+    //   },
+    // });
+
+    // Step 2 : Scan the Trip bus stop time model with To bus stop Id and Get the array → Called to_bus_stop_time_list
+
+    let to_bus_stop_time_list = await TripBusStopTime.find({
+      bus_stop: to_bus_stop._id,
+    });
+    // .populate({
+    //   path: "trip",
+    //   model: "Trip",
+    //   populate: {
+    //     path: "route_number",
+    //     model: "route",
+    //   },
+    // });
+
+    // Step 3 : Check both array are not empty
+
+    if (from_bus_stop_time_list?.length === 0) {
+      return res
+        .status(400)
+        .json("No trip is assigned to this bus stop " + from_bus_stop._id);
+    }
+
+    if (to_bus_stop_time_list?.length === 0) {
+      return res
+        .status(400)
+        .json("No trip is assigned to this bus stop " + to_bus_stop._id);
+    }
+
+    // return res.status(200).json({
+    //   to_bus_stop_time_list,
+    //   from_bus_stop_time_list,
+    // });
+
+    // Step 4 : Pick a array element where a trip id are same. If no trip are same, then a single route can’t get these two bus stops
+    let sameTripId = [];
+    let sameTrip_objs = [];
+
+    let from_obj = {};
+    for (let i = 0; i < from_bus_stop_time_list?.length; i++) {
+      if (from_obj[from_bus_stop_time_list[i].trip]) {
+      } else {
+        from_obj[from_bus_stop_time_list[i].trip] = from_bus_stop_time_list[i];
+      }
+    }
+
+    let to_obj = {};
+    for (let i = 0; i < to_bus_stop_time_list?.length; i++) {
+      if (from_obj[to_bus_stop_time_list[i].trip]) {
+        to_obj[to_bus_stop_time_list[i].trip] = 1;
+        sameTripId.push(to_bus_stop_time_list[i].trip);
+        sameTrip_objs.push({
+          to_bus_stop_time: to_bus_stop_time_list[i],
+          from_bus_stop_time: from_obj[to_bus_stop_time_list[i].trip],
+        });
+      }
+    }
+
+    if (sameTrip_objs.length === 0) {
+      return res.status(400).json("No Single Route reach you there");
+    }
+
+    // return res.json({
+    //   from_obj,
+    //   to_obj,
+    //   sameTripId,
+    //   sameTrip_objs,
+    // });
+    // Step 5 : Pick a array element where from_bus_stop_time_list[i].time is lesser than of to_bus_stop_time_list[i].time → Picking a trip bus stop timing where bus travel from ( from bus stop ) to ( to bus stop)
+    let possible_Trips = [];
+
+    for (let i = 0; i < sameTrip_objs?.length; i++) {
+      if (
+        sameTrip_objs[i].to_bus_stop_time.time >
+        sameTrip_objs[i].from_bus_stop_time.time
+      ) {
+        possible_Trips.push(sameTrip_objs[i].to_bus_stop_time.trip);
+      }
+    }
+
+    let possible_trip_list = await Trip.find({
+      _id: { $in: possible_Trips },
+    })
+      .populate([
+        { path: "route_number", model: "route" },
+        {
+          path: "trip_bus_stop_time_list",
+          model: "TripBusStopTime",
+          populate: {
+            path: "bus_stop",
+            model: "BusStop",
+            select: "-list -bus_stop_search_list",
+          },
+        },
+      ])
+      .lean();
+
+    return res.status(200).json({
+      possible_Trips,
+      possible_trip_list,
+    });
+
+    // Step 6  : Fetch a trip details and route details and organize it and return to API response
+    // let organize_bus_stop_trip = [];
+
+    // for (let i = 0; i < possible_trip_list.length; i++) {}
+  } catch (e) {
+    return res.status(400).json(e);
+  }
+};
+
 module.exports = {
   post_add_bus_stop: post_add_bus_stop,
   post_list,
   post_get_bus_stop_time_and_route: post_get_bus_stop_time_and_route,
+  post_connect_two_bus_stop: post_connect_two_bus_stop,
 };
