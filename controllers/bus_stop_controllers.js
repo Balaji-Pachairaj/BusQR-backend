@@ -258,7 +258,7 @@ const get_bus_stop_list = async (req, res, next) => {
     );
 
     let different = (date1 - new Date(draft_of_bus_stop_list.expire)) / 1000;
-    if (different < 100) {
+    if (different < 10) {
       console.log("Fetch Draft");
       let date2 = new Date();
       return res.status(200).json({
@@ -268,19 +268,24 @@ const get_bus_stop_list = async (req, res, next) => {
       });
     } else {
       console.log("Fetch Fresh");
-      let busStopList = await BusStop.find().select(
-        "_id bus_stop_display_name bus_stop_name"
-      );
+      let busStopList = await BusStop.find()
+        .select("_id bus_stop_display_name bus_stop_name bus_stop_search_list")
+        .populate([
+          {
+            path: "bus_stop_search_list",
+            model: "BusStopSearch",
+            select: "text -_id ",
+          },
+        ]);
+
       let date2 = new Date();
       draft_of_bus_stop_list.expire = new Date();
       await draft_of_bus_stop_list.save();
-      return res
-        .status(200)
-        .json({
-          busStopList,
-          responseTime: date2 - date1,
-          fetch: "Fetch Fresh",
-        });
+      return res.status(200).json({
+        busStopList,
+        responseTime: date2 - date1,
+        fetch: "Fetch Fresh",
+      });
     }
 
     // ------------------------------
