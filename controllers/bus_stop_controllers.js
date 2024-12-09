@@ -257,7 +257,7 @@ const get_bus_stop_list = async (req, res, next) => {
       "675683d45d6a61c356dc893b"
     );
 
-    let different = (date1 - new Date(draft_of_bus_stop_list.expire)) / 1000;
+    let different = (date1 - new Date(draft_of_bus_stop_list?.expire)) / 1000;
     if (different < 100) {
       console.log("Fetch Draft");
       let date2 = new Date();
