@@ -1,6 +1,7 @@
 const { BusStop } = require("../models/busStopModel");
 const { TripBusStopTime } = require("../models/tripBusStopTime");
 const { Trip } = require("../models/tripModel");
+const { DraftModel } = require("../models/draftModel");
 
 const post_add_bus_stop = async (req, res, next) => {
   try {
@@ -247,9 +248,45 @@ const post_connect_two_bus_stop = async (req, res, next) => {
   }
 };
 
+// User API
+const get_bus_stop_list = async (req, res, next) => {
+  try {
+    // ------------------------------
+    let date1 = new Date();
+    let draft_of_bus_stop_list = await DraftModel.findById(
+      "675683d45d6a61c356dc893b"
+    );
+
+    let different = (date1 - new Date(draft_of_bus_stop_list.expire)) / 1000;
+    if (different < 100) {
+      console.log("Fetch Draft");
+      let date2 = new Date();
+      return res.status(200).json({
+        busStopList: JSON.parse(draft_of_bus_stop_list.data),
+        responseTime: date2 - date1,
+      });
+    } else {
+      console.log("Fetch Fresh");
+      let busStopList = await BusStop.find().select(
+        "_id bus_stop_display_name bus_stop_name"
+      );
+      let date2 = new Date();
+      draft_of_bus_stop_list.expire = new Date();
+      await draft_of_bus_stop_list.save();
+      return res.status(200).json({ busStopList, responseTime: date2 - date1 });
+    }
+
+    // ------------------------------
+  } catch (e) {
+    return res.status(400).json(e);
+  }
+};
+
 module.exports = {
   post_add_bus_stop: post_add_bus_stop,
   post_list,
   post_get_bus_stop_time_and_route: post_get_bus_stop_time_and_route,
   post_connect_two_bus_stop: post_connect_two_bus_stop,
+
+  get_bus_stop_list: get_bus_stop_list,
 };
