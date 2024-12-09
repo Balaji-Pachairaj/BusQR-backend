@@ -280,6 +280,7 @@ const get_bus_stop_list = async (req, res, next) => {
 
       let date2 = new Date();
       draft_of_bus_stop_list.expire = new Date();
+      draft_of_bus_stop_list.data = JSON.stringify(busStopList);
       await draft_of_bus_stop_list.save();
       return res.status(200).json({
         busStopList,
