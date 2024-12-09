@@ -264,6 +264,7 @@ const get_bus_stop_list = async (req, res, next) => {
       return res.status(200).json({
         busStopList: JSON.parse(draft_of_bus_stop_list.data),
         responseTime: date2 - date1,
+        fetch: "Fetch Draft",
       });
     } else {
       console.log("Fetch Fresh");
@@ -273,7 +274,13 @@ const get_bus_stop_list = async (req, res, next) => {
       let date2 = new Date();
       draft_of_bus_stop_list.expire = new Date();
       await draft_of_bus_stop_list.save();
-      return res.status(200).json({ busStopList, responseTime: date2 - date1 });
+      return res
+        .status(200)
+        .json({
+          busStopList,
+          responseTime: date2 - date1,
+          fetch: "Fetch Fresh",
+        });
     }
 
     // ------------------------------
