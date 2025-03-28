@@ -42,7 +42,7 @@ app.use((req, res, next) => {
 });
 
 // let port = process.env.PORT;
-let port = 5000;
+let port = 6000;
 
 app.listen(port, () => {
   console.log("Server has started on port 3000");
